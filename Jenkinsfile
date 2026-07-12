@@ -2,34 +2,28 @@ pipeline {
     agent any
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Parallel Build') {
-            parallel {
+        stage('Build') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
 
-                stage('Maven Build') {
+        stage('Parallel Tasks') {
+            parallel {
+                stage('Unit Test') {
                     steps {
-                        dir('student-grade-manager') {
-                            sh 'mvn clean test'
-                        }
+                        sh 'mvn test'
                     }
                 }
-
-                stage('CMake Build') {
+                stage('Verify') {
                     steps {
-                        dir('led-firmware') {
-                            sh '''
-                            mkdir -p build
-                            cd build
-                            cmake ..
-                            make
-                            '''
-                        }
+                        sh 'mvn verify'
                     }
                 }
             }
@@ -37,7 +31,7 @@ pipeline {
 
         stage('Archive') {
             steps {
-                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+                archiveArtifacts artifacts: 'target/*.jar'
             }
         }
     }
