@@ -1,0 +1,3 @@
+git add pom.xml
+git commit -m "Added valid pom.xml"
+git push origin main
